@@ -15,7 +15,8 @@
   "author": "Kanishk Vijaywargiya",
   "license": "ISC",
   "devDependencies": {
-    "nodemon": "^3.1.4"
+    "nodemon": "^3.1.4",
+    "prettier": "^3.3.3"
   },
   "dependencies": {
     "dotenv": "^16.4.5"
