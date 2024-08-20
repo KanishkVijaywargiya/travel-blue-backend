@@ -5,7 +5,7 @@ import {
   validateEmailFormat,
   validateRequiredFields,
 } from "../utils/userValidations.js";
-import { checkUserExists } from "../utils/dbUtils.js";
+import { checkUserExists } from "../utils/dbUserCheck.js";
 
 const registerUser = asyncHandler(async (req, res) => {
   /*
