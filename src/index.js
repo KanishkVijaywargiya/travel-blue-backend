@@ -13,7 +13,7 @@ connectDB()
       throw error;
     });
     app.listen(port, () => {
-      console.log(`⚙  Server running at: ${corsOrigin}:${port}`);
+      console.log(`⚙.Server running at: ${corsOrigin}:${port}`);
     });
   })
   .catch((err) => {

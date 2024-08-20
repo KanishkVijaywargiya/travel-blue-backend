@@ -22,6 +22,12 @@ app.use(express.urlencoded({ extended: true, limit: `${configLimit}` }));
 app.use(express.static("public"));
 app.use(cookieParser());
 
+// routes
+import userRouter from "./routes/user.routes.js";
+
+// USER - routes declaration
+app.use("/api/v1/users", userRouter); // demo URL: http://localhost:8000/api/v1/users/register
+
 app.get("/", (req, res) => {
   res.send("Server is ready");
 });
