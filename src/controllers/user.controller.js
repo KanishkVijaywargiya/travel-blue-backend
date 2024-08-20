@@ -9,6 +9,7 @@ import {
 } from "../utils/userValidations.js";
 import { User } from "../models/user.models.js";
 import { checkUserExists } from "../utils/dbUtils.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 const registerUser = asyncHandler(async (req, res) => {
   /*
@@ -38,14 +39,14 @@ const registerUser = asyncHandler(async (req, res) => {
   await checkUserExists({ username, email });
 
   // Step - 4 & 5. check for image files & upload it to cloudinary
-  const avatar = await validateAndUploadAvatar(req);
+  const avatarImg = await validateAndUploadAvatar(req);
   const coverImg = await uploadCoverImage(req);
 
   // Step - 6. create an user object
   const user = await User.create({
     fullname,
-    avatar: avatar.url,
-    coverImg: coverImg?.url || "",
+    avatar: avatarImg.url,
+    coverImage: coverImg?.url || "",
     email,
     username: username.toLowerCase(),
     password,

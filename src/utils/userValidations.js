@@ -23,20 +23,26 @@ const validateEmailFormat = (email) => {
 const validateAndUploadAvatar = async (req) => {
   const avatarLocalPath = req.files?.avatar[0]?.path;
   console.log("avatarLocalPath", avatarLocalPath);
+
   if (!avatarLocalPath) {
     throw new ApiError(400, "Avatar is a mandatory field");
   }
+
   const avatar = await uploadOnCloudinary(avatarLocalPath);
   console.log("avatar", avatar);
+
   if (!avatar) {
     throw new ApiError(400, "Avatar is a mandatory field");
   }
+  return avatar;
 };
 
 const uploadCoverImage = async (req) => {
   const coverImageLocalPath = req.files?.coverImage[0]?.path;
   console.log("coverImage", coverImageLocalPath);
-  await uploadOnCloudinary(coverImageLocalPath);
+
+  const coverImage = await uploadOnCloudinary(coverImageLocalPath);
+  return coverImage;
 };
 
 export {
