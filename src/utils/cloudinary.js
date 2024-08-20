@@ -11,13 +11,13 @@ cloudinary.config({
   api_secret: cloudinary_cloud_api_secret,
 });
 
-const uploadOnCloudinary = async (localFilePath, fileIdentification) => {
+const uploadOnCloudinary = async (localFilePath) => {
   try {
     if (!localFilePath) return null;
     //   upload the file on cloudinary
     const response = await cloudinary.uploader.upload(localFilePath, {
       resource_type: auto,
-      public_id: fileIdentification,
+      // public_id: fileIdentification,
     });
 
     console.log("FIle has been uploaded on CLoudinary !! 🚀", response.url);

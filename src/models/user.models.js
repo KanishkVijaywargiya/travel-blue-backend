@@ -46,7 +46,7 @@ const userSchema = new Schema(
 // This pre hook will trigger before saving & password will get encrypt again n again
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
-  this.password = bcrypt.hash(this.password, 10);
+  this.password = await bcrypt.hash(this.password, 10);
   next();
 });
 // so that's we have applied a -ve check as well.
