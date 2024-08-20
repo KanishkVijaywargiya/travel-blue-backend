@@ -1,15 +1,11 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import {
-  uploadCoverImage,
-  validateAndUploadAvatar,
+  userCreation,
   validateEmailFormat,
   validateRequiredFields,
 } from "../utils/userValidations.js";
-import { User } from "../models/user.models.js";
 import { checkUserExists } from "../utils/dbUtils.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 const registerUser = asyncHandler(async (req, res) => {
   /*
@@ -38,29 +34,13 @@ const registerUser = asyncHandler(async (req, res) => {
   // Step - 3. user already exists or not
   await checkUserExists({ username, email });
 
-  // Step - 4 & 5. check for image files & upload it to cloudinary
-  const avatarImg = await validateAndUploadAvatar(req);
-  const coverImg = await uploadCoverImage(req);
-
-  // Step - 6. create an user object
-  const user = await User.create({
-    fullname,
-    avatar: avatarImg.url,
-    coverImage: coverImg?.url || "",
+  const createdUser = await userCreation({
+    username,
     email,
-    username: username.toLowerCase(),
+    fullname,
     password,
+    req,
   });
-
-  const createdUser = await User.findById(user._id).select(
-    "-password -refreshToken" //- means we don't want this sign means -ve
-    //-password -> we don't need this, same with refreshToken
-  );
-
-  if (!createdUser) {
-    throw new ApiError(500, "User registration failed, please try again");
-  }
-
   return res
     .status(201)
     .json(new ApiResponse(200, createdUser, "User registered successfully 👌"));
