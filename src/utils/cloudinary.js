@@ -1,5 +1,6 @@
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
+import { formatDate } from "./dateTimeFormat.js";
 
 const cloudinary_cloud_name = process.env.CLOUDINARY_CLOUD_NAME;
 const cloudinary_cloud_api_key = process.env.CLOUDINARY_API_KEY;
@@ -15,9 +16,12 @@ const uploadOnCloudinary = async (localFilePath) => {
   try {
     if (!localFilePath) return null;
     //   upload the file on cloudinary
+    const timestamp = formatDate(); // Add timestamp to use in Cloudinary if needed
+    const fileName = localFilePath.split("/").pop(); // Extract the original filename
+    const publicID = `${timestamp}-${fileName}`;
     const response = await cloudinary.uploader.upload(localFilePath, {
       resource_type: "auto",
-      // public_id: fileIdentification,
+      public_id: publicID,
     });
 
     console.log("File has been uploaded on Cloudinary !! 🚀", response.url);

@@ -1,4 +1,5 @@
 import multer from "multer";
+import { formatDate } from "../utils/dateTimeFormat.js";
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -6,7 +7,9 @@ const storage = multer.diskStorage({
   },
   filename: function (req, file, cb) {
     // const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, file.originalname); //+ "-" + uniqueSuffix);
+    const formattedDate = formatDate();
+    const fileName = `${formattedDate}-${file.originalname}`;
+    cb(null, fileName);
   },
 });
 

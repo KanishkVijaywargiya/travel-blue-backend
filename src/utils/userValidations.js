@@ -23,6 +23,16 @@ const validateEmailFormat = (email) => {
   }
 };
 
+// Step - 2. Password validations
+const validatePassword = (password) => {
+  const passRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  const isInvalidPassword = !passRegex.test(password.trim());
+  if (isInvalidPassword) {
+    throw new ApiError(400, "Invalid Password Format");
+  }
+};
+
 // Step - 4 & 5. check for image files & upload on cloudinary code
 const validateAndUploadAvatar = async (req) => {
   const avatarLocalPath = req.files?.avatar[0]?.path;
@@ -38,6 +48,7 @@ const validateAndUploadAvatar = async (req) => {
   }
   return avatar;
 };
+
 // Step - 4 & 5. check for image files & upload on cloudinary code
 const uploadCoverImage = async (req) => {
   const coverImageLocalPath = req.files?.coverImage[0]?.path;
@@ -71,4 +82,9 @@ const userCreation = async ({ username, email, fullname, password, req }) => {
   return createdUser;
 };
 
-export { validateRequiredFields, validateEmailFormat, userCreation };
+export {
+  validateRequiredFields,
+  validateEmailFormat,
+  validatePassword,
+  userCreation,
+};

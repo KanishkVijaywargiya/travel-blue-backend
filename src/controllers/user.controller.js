@@ -3,6 +3,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import {
   userCreation,
   validateEmailFormat,
+  validatePassword,
   validateRequiredFields,
 } from "../utils/userValidations.js";
 import { checkUserExists } from "../utils/dbUserCheck.js";
@@ -30,6 +31,7 @@ const registerUser = asyncHandler(async (req, res) => {
   // Step - 2. fields validations
   validateRequiredFields([username, email, fullname, password]);
   validateEmailFormat(email);
+  validatePassword(password);
 
   // Step - 3. user already exists or not
   await checkUserExists({ username, email });
