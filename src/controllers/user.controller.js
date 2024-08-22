@@ -23,9 +23,9 @@ const registerUser = asyncHandler(async (req, res) => {
   */
   // Step - 1.
   const { username, email, fullname, password } = req.body;
-  console.log(
-    `Username: ${username}, Email: ${email}, Fullname: ${fullname}, Password: ${password}`
-  );
+  // console.log(
+  //   `Username: ${username}, Email: ${email}, Fullname: ${fullname}, Password: ${password}`
+  // );
 
   // Step - 2. fields validations
   validateRequiredFields([username, email, fullname, password], res);
