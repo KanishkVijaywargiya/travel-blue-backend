@@ -23,30 +23,32 @@ const registerUser = asyncHandler(async (req, res) => {
   */
   // Step - 1.
   const { username, email, fullname, password } = req.body;
-  console.log(req.body);
   console.log(
     `Username: ${username}, Email: ${email}, Fullname: ${fullname}, Password: ${password}`
   );
 
   // Step - 2. fields validations
-  validateRequiredFields([username, email, fullname, password]);
-  validateEmailFormat(email);
-  validatePassword(password);
+  validateRequiredFields([username, email, fullname, password], res);
+  validateEmailFormat(email, res);
+  validatePassword(password, res);
 
   // Step - 3. user already exists or not
-  await checkUserExists({ username, email });
+  await checkUserExists({ username, email }, res);
 
-  const createdUser = await userCreation({
-    username,
-    email,
-    fullname,
-    password,
-    req,
-  });
+  const createdUser = await userCreation(
+    {
+      username,
+      email,
+      fullname,
+      password,
+      req,
+    },
+    res
+  );
+
   return res
     .status(201)
     .json(new ApiResponse(200, createdUser, "User registered successfully 👌"));
-
   //   res.status(201).json({ message: "User registered successfully 👌" });
 });
 
