@@ -82,34 +82,47 @@ const userCreation = async (
   { username, email, fullname, password, req },
   res
 ) => {
-  const avatarImg = await validateAndUploadAvatar(req, res);
-  // if (!avatarImg) {
-  //   return;
-  // }
-  const coverImg = await uploadCoverImage(req);
+  try {
+    const avatarImg = await validateAndUploadAvatar(req, res);
+    const coverImg = await uploadCoverImage(req);
 
-  const user = await User.create({
-    fullname,
-    avatar: avatarImg.url,
-    coverImage: coverImg?.url || "",
-    email,
-    username: username.toLowerCase(),
-    password,
-  });
+    const user = await User.create({
+      fullname,
+      avatar: avatarImg.url,
+      coverImage: coverImg?.url || "",
+      email,
+      username: username.toLowerCase(),
+      password,
+    });
 
-  const createdUser = await User.findById(user._id).select(
-    "-password -refreshToken" //`-` means we don't want this sign means -ve
-    //-password -> we don't need this, same with refreshToken
-  );
-
-  if (!createdUser) {
-    return new ApiError(500, "User registration failed, please try again").send(
-      res
+    const createdUser = await User.findById(user._id).select(
+      "-password -refreshToken" //`-` means we don't want this sign means -ve
+      //-password -> we don't need this, same with refreshToken
     );
-    // throw new ApiError(500, "User registration failed, please try again");
-  }
 
-  return createdUser;
+    if (!createdUser) {
+      return new ApiError(
+        500,
+        "User registration failed, please try again"
+      ).send(res);
+      // throw new ApiError(500, "User registration failed, please try again");
+    }
+
+    return createdUser;
+  } catch (error) {
+    if (error.code === 11000) {
+      // Duplicate key error
+      const duplicateField = Object.keys(error.keyValue)[0];
+      const duplicateValue = error.keyValue[duplicateField];
+      return new ApiError(
+        409,
+        `User with this ${duplicateField}: ${duplicateValue} already exists`
+      ).send(res);
+    }
+
+    // Handle other errors
+    return new ApiError(500, "An unexpected error occurred").send(res);
+  }
 };
 
 export {
