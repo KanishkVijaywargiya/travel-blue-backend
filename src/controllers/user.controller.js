@@ -85,15 +85,14 @@ const loginUser = asyncHandler(async (req, res) => {
 
   if (await validateUserPassword(user, password, res)) return; // Step - 4.
 
-  const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
-    user._id
-  );
+  const { loggedInUser, accessToken, refreshToken } =
+    await generateAccessAndRefreshToken(user._id, res);
 
   // required for sending cookies
   const options = {
     httpOnly: true,
-    secure: true,
-    sameSite: "None",
+    secure: true, // Set to true in production for HTTPS
+    sameSite: "None", // Adjust based on your security needs
   };
 
   if (user) {
@@ -104,7 +103,7 @@ const loginUser = asyncHandler(async (req, res) => {
       .json(
         new ApiResponse(
           200,
-          { user, accessToken, refreshToken },
+          { user: loggedInUser, accessToken, refreshToken },
           "User Logged In Successfully !!!.🥳"
         )
       );
@@ -118,8 +117,9 @@ const logoutUser = asyncHandler(async (req, res) => {
   // for cookies
   const options = {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === "production",
     sameSite: "None",
+    path: "/",
   };
 
   if (result) {

@@ -40,10 +40,6 @@ const findUserbyUsernameOrEmail = async ({ username, email }, res) => {
   if (email) query.email = email;
 
   const userExists = await User.findOne(query);
-  //         ({
-  //     $or: [username ? { username } : {}, email ? { email } : {}],
-  //   });
-  console.log("userExists", userExists);
   if (!userExists) {
     return new ApiError(
       404,
@@ -56,7 +52,6 @@ const findUserbyUsernameOrEmail = async ({ username, email }, res) => {
 // Step - 4. validate user password
 const validateUserPassword = async (user, password, res) => {
   const isPasswordCorrect = await user.isPasswordCompare(password);
-  console.log("isPasswordCorrect", isPasswordCorrect);
   if (!isPasswordCorrect) {
     return new ApiError(
       401,
@@ -77,23 +72,23 @@ const generateAccessAndRefreshToken = async (userId, res) => {
     }
 
     // generating access & refresh token
-    const generateAccessToken = user.generateAccessToken();
-    const generateRefreshToken = user.generateRefreshToken();
+    const accessToken = user.generateAccessToken();
+    const refreshToken = user.generateRefreshToken();
+    // console.log("access token---🚀", accessToken);
+    // console.log("refresh token---🚀", refreshToken);
 
     // storing refresh token to user model & then saving
-    user.refreshToken = generateRefreshToken;
+    user.refreshToken = refreshToken;
     await user.save({ validateBeforeSave: false });
+    // console.log("user.refreshToken---🚀", user.refreshToken);
 
     // Return the user without password and refreshToken fields
-    const loggedInUser = {
-      ...user.toObject(),
-      // Remove sensitive fields
-      password: undefined,
-      refreshToken: undefined,
-    };
+    const loggedInUser = user.toObject();
+    delete loggedInUser.password; // Remove password
+    delete loggedInUser.refreshToken; // Remove refresh token
     // const loggedInUser = await user.findById.select("-password -refreshToken");
 
-    return { loggedInUser, generateAccessToken, generateRefreshToken };
+    return { loggedInUser, accessToken, refreshToken };
   } catch (error) {
     return new ApiError(
       500,
