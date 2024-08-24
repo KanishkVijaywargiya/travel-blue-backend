@@ -5,8 +5,16 @@ import {
   validateEmailFormat,
   validatePassword,
   validateRequiredFields,
-} from "../utils/userValidations.js";
+} from "../utils/userRegisterValidations.js";
 import { checkUserExists } from "../utils/dbUserCheck.js";
+import {
+  validateRequiredLoginFields,
+  findUserbyUsernameOrEmail,
+  validateUserPassword,
+  generateAccessAndRefreshToken,
+  logoutAndClearUserRefreshToken,
+  validateEmailAndPasswordFormat,
+} from "../utils/userLoginValidations.js";
 
 const registerUser = asyncHandler(async (req, res) => {
   /*
@@ -58,7 +66,82 @@ const registerUser = asyncHandler(async (req, res) => {
 });
 
 const loginUser = asyncHandler(async (req, res) => {
-  res.status(200).json({ message: "Ok 👍" });
+  /* TODO: 
+    1. req body -> data
+    2. entry for user via username or email
+    3. find the user
+    4. check pwd, if ok -> give access & 
+    5. generate access & refresh token -> & send to user
+    6. send it in cookies -> send response 'successfull login'
+  */
+  const { username, email, password } = req.body; // Step - 1.
+  if (validateRequiredLoginFields({ username, email, password }, res)) return; // Step - 2.
+
+  // validations of email & password formats
+  if (validateEmailAndPasswordFormat({ email, password }, res)) return;
+
+  const user = await findUserbyUsernameOrEmail({ username, email }, res); // Step - 3.
+  if (!user) return;
+
+  if (await validateUserPassword(user, password, res)) return; // Step - 4.
+
+  const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
+    user._id
+  );
+
+  // required for sending cookies
+  const options = {
+    httpOnly: true,
+    secure: true,
+    sameSite: "None",
+  };
+
+  if (user) {
+    return res
+      .status(200)
+      .cookie("accessToken", accessToken, options)
+      .cookie("refreshToken", refreshToken, options)
+      .json(
+        new ApiResponse(
+          200,
+          { user, accessToken, refreshToken },
+          "User Logged In Successfully !!!.🥳"
+        )
+      );
+  }
 });
 
-export { registerUser, loginUser };
+const logoutUser = asyncHandler(async (req, res) => {
+  const result = await logoutAndClearUserRefreshToken(req.user._id, res);
+  if (!result) return;
+
+  // for cookies
+  const options = {
+    httpOnly: true,
+    secure: true,
+    sameSite: "None",
+  };
+
+  if (result) {
+    return res
+      .status(200)
+      .clearCookie("accessToken", options)
+      .clearCookie("refreshToken", options)
+      .json(new ApiResponse(200, {}, "User logout successful !!!. 🤗"));
+  }
+});
+
+export { registerUser, loginUser, logoutUser };
+
+/*
+this is my current controller code, pls call that generateAccessAndRefreshToken() here
+const loginUser = asyncHandler(async (req, res) => {
+const { username, email, password } = req.body; // Step - 1.
+  if (validateRequiredLoginFields({ username, email, password }, res)) return; 
+const user = await findUserbyUsernameOrEmail({ username, email }, res);
+  if (!user) return;
+if (await validateUserPassword(user, password, res)) return;
+const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
+    user._id
+  );
+  */

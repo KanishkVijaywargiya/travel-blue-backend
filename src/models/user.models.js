@@ -54,7 +54,7 @@ userSchema.pre("save", async function (next) {
 // if password field is modified then only come in pre function
 
 // this method is use to compare user entered password with bcrypt password before saving
-userSchema.methods.isPasswordCorrect = async function (password) {
+userSchema.methods.isPasswordCompare = async function (password) {
   // password: user entered password; this.password: encrypted password by bcrypt
   return await bcrypt.compare(password, this.password);
 };
