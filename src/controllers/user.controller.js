@@ -28,12 +28,13 @@ const registerUser = asyncHandler(async (req, res) => {
   // );
 
   // Step - 2. fields validations
-  validateRequiredFields([username, email, fullname, password], res);
-  validateEmailFormat(email, res);
-  validatePassword(password, res);
+  if (validateRequiredFields([username, email, fullname, password], res))
+    return;
+  if (validateEmailFormat(email, res)) return;
+  if (validatePassword(password, res)) return;
 
   // Step - 3. user already exists or not
-  await checkUserExists({ username, email }, res);
+  if (await checkUserExists({ username, email }, res)) return;
 
   const createdUser = await userCreation(
     {
@@ -46,9 +47,13 @@ const registerUser = asyncHandler(async (req, res) => {
     res
   );
 
-  return res
-    .status(201)
-    .json(new ApiResponse(200, createdUser, "User registered successfully 👌"));
+  if (createdUser) {
+    return res
+      .status(201)
+      .json(
+        new ApiResponse(200, createdUser, "User registered successfully 👌")
+      );
+  }
   //   res.status(201).json({ message: "User registered successfully 👌" });
 });
 
