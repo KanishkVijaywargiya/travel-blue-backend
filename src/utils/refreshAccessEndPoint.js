@@ -32,6 +32,16 @@ const refreshAccessEndPoint = async (req, res) => {
       user._id
     );
 
+    user.refreshToken = refreshToken;
+    const updatedRefreshToken = await user.save();
+
+    if (!updatedRefreshToken) {
+      return new ApiError(
+        401,
+        "Failed to update user's refresh token in the database"
+      ).send(res);
+    }
+
     return res.status(200).json({ accessToken, refreshToken });
   } catch (error) {
     return new ApiError(500, error.message || "Invalid refresh token").send(
