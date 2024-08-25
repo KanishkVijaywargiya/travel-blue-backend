@@ -1,5 +1,5 @@
-import { ApiError } from "./ApiError.js";
-import { User } from "../models/user.models.js";
+import { ApiError } from "../ApiError.js";
+import { User } from "../../models/user.models.js";
 
 // Step - 3. user already exists or not
 const checkUserExists = async ({ username, email }, res) => {

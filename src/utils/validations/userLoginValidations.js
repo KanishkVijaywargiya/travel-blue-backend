@@ -1,6 +1,6 @@
-import { ApiError } from "./ApiError.js";
-import { User } from "../models/user.models.js";
-import { EMAIL_REGEX, PASSWORD_REGEX } from "../constants.js";
+import { ApiError } from "../ApiError.js";
+import { User } from "../../models/user.models.js";
+import { EMAIL_REGEX, PASSWORD_REGEX } from "../../constants.js";
 
 // validating login fields as all fields are mandatory
 const validateRequiredLoginFields = ({ username, email, password }, res) => {

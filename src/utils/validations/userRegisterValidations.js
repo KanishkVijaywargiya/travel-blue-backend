@@ -1,7 +1,7 @@
-import { ApiError } from "./ApiError.js";
-import { uploadOnCloudinary } from "./cloudinary.js";
-import { User } from "../models/user.models.js";
-import { EMAIL_REGEX, PASSWORD_REGEX } from "../constants.js";
+import { ApiError } from "../ApiError.js";
+import { uploadOnCloudinary } from "../cloudinary.js";
+import { User } from "../../models/user.models.js";
+import { EMAIL_REGEX, PASSWORD_REGEX } from "../../constants.js";
 
 // validate required fields - username, fullname, password, email
 // field? is made option as to safely access the properties that might be undefined or null

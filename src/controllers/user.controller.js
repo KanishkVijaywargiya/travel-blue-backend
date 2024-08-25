@@ -1,12 +1,12 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import { checkUserExists } from "../utils/Validations/dbUserCheck.js";
 import {
   userCreation,
   validateEmailFormat,
   validatePassword,
   validateRequiredFields,
-} from "../utils/userRegisterValidations.js";
-import { checkUserExists } from "../utils/dbUserCheck.js";
+} from "../utils/validations/userRegisterValidations.js";
 import {
   validateRequiredLoginFields,
   findUserbyUsernameOrEmail,
@@ -14,8 +14,10 @@ import {
   generateAccessAndRefreshToken,
   logoutAndClearUserRefreshToken,
   validateEmailAndPasswordFormat,
-} from "../utils/userLoginValidations.js";
+} from "../utils/validations/userLoginValidations.js";
+import { refreshAccessEndPoint } from "../utils/refreshAccessEndPoint.js";
 
+// POST method
 const registerUser = asyncHandler(async (req, res) => {
   /*
     $$$$$$$$$ Steps to register an user $$$$$$$$$$$$$
@@ -65,6 +67,7 @@ const registerUser = asyncHandler(async (req, res) => {
   //   res.status(201).json({ message: "User registered successfully 👌" });
 });
 
+// POST method
 const loginUser = asyncHandler(async (req, res) => {
   /* TODO: 
     1. req body -> data
@@ -110,6 +113,7 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 });
 
+// POST method
 const logoutUser = asyncHandler(async (req, res) => {
   const result = await logoutAndClearUserRefreshToken(req.user._id, res);
   if (!result) return;
@@ -117,7 +121,7 @@ const logoutUser = asyncHandler(async (req, res) => {
   // for cookies
   const options = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: true,
     sameSite: "None",
     path: "/",
   };
@@ -127,21 +131,36 @@ const logoutUser = asyncHandler(async (req, res) => {
       .status(200)
       .clearCookie("accessToken", options)
       .clearCookie("refreshToken", options)
-      .json(new ApiResponse(200, {}, "User logout successful !!!. 🤗"));
+      .json(new ApiResponse(200, {}, "User logout successfully !!!. 🤗"));
   }
 });
 
-export { registerUser, loginUser, logoutUser };
+// POST method - end point for refresh token
+const refreshAccessToken = asyncHandler(async (req, res) => {
+  // Generate new access and refresh tokens for the user
+  const { accessToken, refreshToken } = await refreshAccessEndPoint(req, res);
+  if (!accessToken || !refreshToken) return;
 
-/*
-this is my current controller code, pls call that generateAccessAndRefreshToken() here
-const loginUser = asyncHandler(async (req, res) => {
-const { username, email, password } = req.body; // Step - 1.
-  if (validateRequiredLoginFields({ username, email, password }, res)) return; 
-const user = await findUserbyUsernameOrEmail({ username, email }, res);
-  if (!user) return;
-if (await validateUserPassword(user, password, res)) return;
-const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
-    user._id
-  );
-  */
+  // for cookies
+  const options = {
+    httpOnly: true,
+    secure: true,
+    sameSite: "None",
+  };
+
+  if (!accessToken || !refreshToken) {
+    return res
+      .status(200)
+      .clearCookie("accessToken", accessToken, options)
+      .clearCookie("refreshToken", refreshToken, options)
+      .json(
+        new ApiResponse(
+          200,
+          { accessToken, refreshToken },
+          "Access Token Refreshed 🔆"
+        )
+      );
+  }
+});
+
+export { registerUser, loginUser, logoutUser, refreshAccessToken };
