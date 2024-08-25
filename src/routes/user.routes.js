@@ -5,6 +5,7 @@ import {
   logoutUser,
   refreshAccessToken,
   registerUser,
+  getCurrentUser,
 } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
@@ -31,5 +32,6 @@ userRouter.route("/refresh-token").post(refreshAccessToken);
 userRouter
   .route("/password-reset")
   .post(upload.none(), verifyJWT, changeCurrentPassword);
+userRouter.route("/current-user").get(verifyJWT, getCurrentUser);
 
 export default userRouter;

@@ -208,6 +208,7 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
   const { oldPassword, newPassword } = req.body;
 
   if (validateRequiredFields([oldPassword, newPassword], res)) return;
+  if (validatePassword(oldPassword, res)) return;
   if (validatePassword(newPassword, res)) return;
 
   const result = await passwordReset(
@@ -224,10 +225,20 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
   }
 });
 
+// GET method - get current user
+const getCurrentUser = asyncHandler(async (req, res) => {
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, req.user, "Current user fetched successfully !!!.🥳")
+    );
+});
+
 export {
   registerUser,
   loginUser,
   logoutUser,
   refreshAccessToken,
   changeCurrentPassword,
+  getCurrentUser,
 };
