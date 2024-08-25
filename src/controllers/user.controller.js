@@ -1,5 +1,5 @@
-import { asyncHandler } from "../utils/asyncHandler.js";
-import { ApiResponse } from "../utils/ApiResponse.js";
+import { asyncHandler } from "../utils/errorHandling/asyncHandler.js";
+import { ApiResponse } from "../utils/response/ApiResponse.js";
 import {
   userCreation,
   validateEmailFormat,
@@ -14,13 +14,13 @@ import {
   logoutAndClearUserRefreshToken,
   validateEmailAndPasswordFormat,
 } from "../utils/validation/userLoginValidations.js";
-import { refreshAccessEndPoint } from "../utils/refreshAccessEndPoint.js";
+import { refreshAccessEndPoint } from "../utils/auth/refreshAccessEndPoint.js";
 import { checkUserExists } from "../utils/validation/dbUserCheck.js";
+import { passwordReset } from "../utils/auth/passwordReset.js";
 import {
   checkUserStatus,
   fetchAllUsers,
-  passwordReset,
-} from "../utils/passwordReset.js";
+} from "../utils/validation/dbUserCheck.js";
 
 // POST method
 const registerUser = asyncHandler(async (req, res) => {

@@ -1,7 +1,7 @@
 // this auth.middleware will verify the user is there or not
 import JWT from "jsonwebtoken";
-import { asyncHandler } from "../utils/asyncHandler.js";
-import { ApiError } from "../utils/ApiError.js";
+import { asyncHandler } from "../utils/errorHandling/asyncHandler.js";
+import { ApiError } from "../utils/errorHandling/ApiError.js";
 import { User } from "../models/user.models.js";
 
 const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;

@@ -1,5 +1,5 @@
-import { ApiError } from "../ApiError.js";
-import { uploadOnCloudinary } from "../cloudinary.js";
+import { ApiError } from "../errorHandling/ApiError.js";
+import { uploadOnCloudinary } from "../cloud/cloudinary.js";
 import { User } from "../../models/user.models.js";
 import { EMAIL_REGEX, PASSWORD_REGEX } from "../../constants.js";
 

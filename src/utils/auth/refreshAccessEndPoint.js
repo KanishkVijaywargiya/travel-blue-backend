@@ -1,6 +1,6 @@
-import { User } from "../models/user.models.js";
-import { ApiError } from "./ApiError.js";
-import { generateAccessAndRefreshToken } from "./validation/userLoginValidations.js";
+import { User } from "../../models/user.models.js";
+import { ApiError } from "../errorHandling/ApiError.js";
+import { generateAccessAndRefreshToken } from "../validation/userLoginValidations.js";
 import JWT from "jsonwebtoken";
 
 const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET;

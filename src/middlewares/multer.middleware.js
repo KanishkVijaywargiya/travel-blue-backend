@@ -1,5 +1,5 @@
 import multer from "multer";
-import { formatDate } from "../utils/dateTimeFormat.js";
+import { formatDate } from "../utils/dateTimeFormat/dateTimeFormat.js";
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
