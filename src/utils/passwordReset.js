@@ -29,4 +29,14 @@ const passwordReset = async (userId, oldPassword, newPassword, res) => {
   }
 };
 
-export { passwordReset };
+const fetchAllUsers = async (_, res) => {
+  try {
+    const users = await User.find();
+    if (!users) return new ApiError(400, "No Users available").send(res);
+    return users;
+  } catch (error) {
+    return new ApiError(500, "Error in fetching users").send(res);
+  }
+};
+
+export { passwordReset, fetchAllUsers };

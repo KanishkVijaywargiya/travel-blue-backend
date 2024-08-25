@@ -16,7 +16,7 @@ import {
 } from "../utils/validation/userLoginValidations.js";
 import { refreshAccessEndPoint } from "../utils/refreshAccessEndPoint.js";
 import { checkUserExists } from "../utils/validation/dbUserCheck.js";
-import { passwordReset } from "../utils/passwordReset.js";
+import { fetchAllUsers, passwordReset } from "../utils/passwordReset.js";
 
 // POST method
 const registerUser = asyncHandler(async (req, res) => {
@@ -234,6 +234,18 @@ const getCurrentUser = asyncHandler(async (req, res) => {
     );
 });
 
+const getAllUsers = asyncHandler(async (_, res) => {
+  const users = await fetchAllUsers(res);
+  if (!users) return;
+  if (users) {
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, users, "All users fetched successfully !!!.🥳")
+      );
+  }
+});
+
 export {
   registerUser,
   loginUser,
@@ -241,4 +253,5 @@ export {
   refreshAccessToken,
   changeCurrentPassword,
   getCurrentUser,
+  getAllUsers,
 };
