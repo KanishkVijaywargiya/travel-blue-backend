@@ -6,14 +6,14 @@ import { User } from "../models/user.models.js";
 
 const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
 
-export const verifyJWT = asyncHandler(async (req, _, next) => {
+export const verifyJWT = asyncHandler(async (req, res, next) => {
   try {
     const accessToken =
       req.cookies?.accessToken ||
       req.header("Authorization")?.replace("Bearer ", ""); //it will only allow to send token & replacing the "Bearer " and empty space with empty string ""
 
     if (!accessToken) {
-      throw new ApiError(401, "Unauthorized request");
+      return new ApiError(401, "Unauthorized request").send(res);
     }
 
     const decodedToken = JWT.verify(accessToken, accessTokenSecret);
@@ -21,11 +21,13 @@ export const verifyJWT = asyncHandler(async (req, _, next) => {
       "-password -refreshToken"
     );
 
-    if (!user) throw new ApiError(401, "Invalid access token");
+    if (!user) return new ApiError(401, "Invalid access token").send(res);
 
     req.user = user;
     next();
   } catch (error) {
-    throw new ApiError(401, error?.message || "Invalid access token");
+    return new ApiError(401, error?.message || "Invalid access token").send(
+      res
+    );
   }
 });

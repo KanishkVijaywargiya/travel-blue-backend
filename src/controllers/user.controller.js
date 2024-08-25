@@ -16,7 +16,11 @@ import {
 } from "../utils/validation/userLoginValidations.js";
 import { refreshAccessEndPoint } from "../utils/refreshAccessEndPoint.js";
 import { checkUserExists } from "../utils/validation/dbUserCheck.js";
-import { fetchAllUsers, passwordReset } from "../utils/passwordReset.js";
+import {
+  checkUserStatus,
+  fetchAllUsers,
+  passwordReset,
+} from "../utils/passwordReset.js";
 
 // POST method
 const registerUser = asyncHandler(async (req, res) => {
@@ -227,13 +231,16 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 
 // GET method - get current user
 const getCurrentUser = asyncHandler(async (req, res) => {
-  return res
-    .status(200)
-    .json(
-      new ApiResponse(200, req.user, "Current user fetched successfully !!!.🥳")
-    );
+  const user = await checkUserStatus(req.user, res);
+  if (!user) return;
+  if (user) {
+    return res
+      .status(200)
+      .json(new ApiResponse(200, user, `Welcome ${req.user.fullname} 🥳`));
+  }
 });
 
+// GET method - get all users from DB
 const getAllUsers = asyncHandler(async (_, res) => {
   const users = await fetchAllUsers(res);
   if (!users) return;

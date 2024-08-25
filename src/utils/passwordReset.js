@@ -39,4 +39,16 @@ const fetchAllUsers = async (_, res) => {
   }
 };
 
-export { passwordReset, fetchAllUsers };
+const checkUserStatus = async (user, res) => {
+  try {
+    if (!user) return new ApiError(401, "User not logged in").send(res);
+    const userExists = await User.countDocuments();
+    if (userExists === 0)
+      return new ApiError(404, "Not a single user vailable").send(res);
+    return userExists;
+  } catch (error) {
+    return new ApiError(500, "Error in fetching user").send(res);
+  }
+};
+
+export { passwordReset, fetchAllUsers, checkUserStatus };
