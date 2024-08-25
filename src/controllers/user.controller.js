@@ -1,12 +1,11 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import { checkUserExists } from "../utils/validations/dbUserCheck.js";
 import {
   userCreation,
   validateEmailFormat,
   validatePassword,
   validateRequiredFields,
-} from "../utils/validations/userRegisterValidations.js";
+} from "../utils/validation/userRegisterValidations.js";
 import {
   validateRequiredLoginFields,
   findUserbyUsernameOrEmail,
@@ -14,8 +13,9 @@ import {
   generateAccessAndRefreshToken,
   logoutAndClearUserRefreshToken,
   validateEmailAndPasswordFormat,
-} from "../utils/validations/userLoginValidations.js";
+} from "../utils/validation/userLoginValidations.js";
 import { refreshAccessEndPoint } from "../utils/refreshAccessEndPoint.js";
+import { checkUserExists } from "../utils/validation/dbUserCheck.js";
 
 // POST method
 const registerUser = asyncHandler(async (req, res) => {
