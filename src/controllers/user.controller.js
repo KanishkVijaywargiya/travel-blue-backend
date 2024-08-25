@@ -16,6 +16,7 @@ import {
 } from "../utils/validation/userLoginValidations.js";
 import { refreshAccessEndPoint } from "../utils/refreshAccessEndPoint.js";
 import { checkUserExists } from "../utils/validation/dbUserCheck.js";
+import { passwordReset } from "../utils/passwordReset.js";
 
 // POST method
 const registerUser = asyncHandler(async (req, res) => {
@@ -84,72 +85,72 @@ const loginUser = asyncHandler(async (req, res) => {
     refreshToken: incomingRefreshToken,
   } = req.body; // Step - 1.
 
-  if (incomingRefreshToken) {
-    try {
-      const { accessToken, refreshToken } = await refreshAccessEndPoint(
-        req,
-        res
+  // if (incomingRefreshToken) {
+  //   try {
+  //     const { accessToken, refreshToken } = await refreshAccessEndPoint(
+  //       req,
+  //       res
+  //     );
+  //     if (!accessToken || !refreshToken) return;
+
+  //     // for cookies
+  //     const options = {
+  //       httpOnly: true,
+  //       secure: true,
+  //       sameSite: "None",
+  //     };
+
+  //     if (!accessToken || !refreshToken) {
+  //       return res
+  //         .status(200)
+  //         .clearCookie("accessToken", accessToken, options)
+  //         .clearCookie("refreshToken", refreshToken, options)
+  //         .json(
+  //           new ApiResponse(
+  //             200,
+  //             { accessToken, refreshToken },
+  //             "Access Token Refreshed 🔆"
+  //           )
+  //         );
+  //     }
+  //   } catch (error) {
+  //     return new ApiError(500, "Invalid refresh token").send(res);
+  //   }
+  // } else {
+  if (validateRequiredLoginFields({ username, email, password }, res)) return; // Step - 2.
+
+  // validations of email & password formats
+  if (validateEmailAndPasswordFormat({ email, password }, res)) return;
+
+  const user = await findUserbyUsernameOrEmail({ username, email }, res); // Step - 3.
+  if (!user) return;
+
+  if (await validateUserPassword(user, password, res)) return; // Step - 4.
+
+  const { loggedInUser, accessToken, refreshToken } =
+    await generateAccessAndRefreshToken(user._id, res);
+
+  // required for sending cookies
+  const options = {
+    httpOnly: true,
+    secure: true, // Set to true in production for HTTPS
+    sameSite: "None", // Adjust based on your security needs
+  };
+
+  if (user) {
+    return res
+      .status(200)
+      .cookie("accessToken", accessToken, options)
+      .cookie("refreshToken", refreshToken, options)
+      .json(
+        new ApiResponse(
+          200,
+          { user: loggedInUser, accessToken, refreshToken },
+          "User Logged In Successfully !!!.🥳"
+        )
       );
-      if (!accessToken || !refreshToken) return;
-
-      // for cookies
-      const options = {
-        httpOnly: true,
-        secure: true,
-        sameSite: "None",
-      };
-
-      if (!accessToken || !refreshToken) {
-        return res
-          .status(200)
-          .clearCookie("accessToken", accessToken, options)
-          .clearCookie("refreshToken", refreshToken, options)
-          .json(
-            new ApiResponse(
-              200,
-              { accessToken, refreshToken },
-              "Access Token Refreshed 🔆"
-            )
-          );
-      }
-    } catch (error) {
-      return new ApiError(500, "Invalid refresh token").send(res);
-    }
-  } else {
-    if (validateRequiredLoginFields({ username, email, password }, res)) return; // Step - 2.
-
-    // validations of email & password formats
-    if (validateEmailAndPasswordFormat({ email, password }, res)) return;
-
-    const user = await findUserbyUsernameOrEmail({ username, email }, res); // Step - 3.
-    if (!user) return;
-
-    if (await validateUserPassword(user, password, res)) return; // Step - 4.
-
-    const { loggedInUser, accessToken, refreshToken } =
-      await generateAccessAndRefreshToken(user._id, res);
-
-    // required for sending cookies
-    const options = {
-      httpOnly: true,
-      secure: true, // Set to true in production for HTTPS
-      sameSite: "None", // Adjust based on your security needs
-    };
-
-    if (user) {
-      return res
-        .status(200)
-        .cookie("accessToken", accessToken, options)
-        .cookie("refreshToken", refreshToken, options)
-        .json(
-          new ApiResponse(
-            200,
-            { user: loggedInUser, accessToken, refreshToken },
-            "User Logged In Successfully !!!.🥳"
-          )
-        );
-    }
   }
+  // }
 });
 
 // POST method
@@ -202,4 +203,31 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
   }
 });
 
-export { registerUser, loginUser, logoutUser, refreshAccessToken };
+// POST method - change password
+const changeCurrentPassword = asyncHandler(async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+
+  if (validateRequiredFields([oldPassword, newPassword], res)) return;
+  if (validatePassword(newPassword, res)) return;
+
+  const result = await passwordReset(
+    req.user?._id,
+    oldPassword,
+    newPassword,
+    res
+  );
+
+  if (result) {
+    return res
+      .status(200)
+      .json(new ApiResponse(200, {}, "Password updated successfully !!!.🥳"));
+  }
+});
+
+export {
+  registerUser,
+  loginUser,
+  logoutUser,
+  refreshAccessToken,
+  changeCurrentPassword,
+};
