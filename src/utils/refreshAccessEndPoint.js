@@ -29,7 +29,8 @@ const refreshAccessEndPoint = async (req, res) => {
 
     // Generate new access and refresh tokens for the user
     const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
-      user._id
+      user._id,
+      res
     );
 
     user.refreshToken = refreshToken;

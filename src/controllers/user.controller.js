@@ -77,39 +77,78 @@ const loginUser = asyncHandler(async (req, res) => {
     5. generate access & refresh token -> & send to user
     6. send it in cookies -> send response 'successfull login'
   */
-  const { username, email, password } = req.body; // Step - 1.
-  if (validateRequiredLoginFields({ username, email, password }, res)) return; // Step - 2.
+  const {
+    username,
+    email,
+    password,
+    refreshToken: incomingRefreshToken,
+  } = req.body; // Step - 1.
 
-  // validations of email & password formats
-  if (validateEmailAndPasswordFormat({ email, password }, res)) return;
-
-  const user = await findUserbyUsernameOrEmail({ username, email }, res); // Step - 3.
-  if (!user) return;
-
-  if (await validateUserPassword(user, password, res)) return; // Step - 4.
-
-  const { loggedInUser, accessToken, refreshToken } =
-    await generateAccessAndRefreshToken(user._id, res);
-
-  // required for sending cookies
-  const options = {
-    httpOnly: true,
-    secure: true, // Set to true in production for HTTPS
-    sameSite: "None", // Adjust based on your security needs
-  };
-
-  if (user) {
-    return res
-      .status(200)
-      .cookie("accessToken", accessToken, options)
-      .cookie("refreshToken", refreshToken, options)
-      .json(
-        new ApiResponse(
-          200,
-          { user: loggedInUser, accessToken, refreshToken },
-          "User Logged In Successfully !!!.🥳"
-        )
+  if (incomingRefreshToken) {
+    try {
+      const { accessToken, refreshToken } = await refreshAccessEndPoint(
+        req,
+        res
       );
+      if (!accessToken || !refreshToken) return;
+
+      // for cookies
+      const options = {
+        httpOnly: true,
+        secure: true,
+        sameSite: "None",
+      };
+
+      if (!accessToken || !refreshToken) {
+        return res
+          .status(200)
+          .clearCookie("accessToken", accessToken, options)
+          .clearCookie("refreshToken", refreshToken, options)
+          .json(
+            new ApiResponse(
+              200,
+              { accessToken, refreshToken },
+              "Access Token Refreshed 🔆"
+            )
+          );
+      }
+    } catch (error) {
+      return new ApiError(500, "Invalid refresh token").send(res);
+    }
+  } else {
+    if (validateRequiredLoginFields({ username, email, password }, res)) return; // Step - 2.
+
+    // validations of email & password formats
+    if (validateEmailAndPasswordFormat({ email, password }, res)) return;
+
+    const user = await findUserbyUsernameOrEmail({ username, email }, res); // Step - 3.
+    if (!user) return;
+
+    if (await validateUserPassword(user, password, res)) return; // Step - 4.
+
+    const { loggedInUser, accessToken, refreshToken } =
+      await generateAccessAndRefreshToken(user._id, res);
+
+    // required for sending cookies
+    const options = {
+      httpOnly: true,
+      secure: true, // Set to true in production for HTTPS
+      sameSite: "None", // Adjust based on your security needs
+    };
+
+    if (user) {
+      return res
+        .status(200)
+        .cookie("accessToken", accessToken, options)
+        .cookie("refreshToken", refreshToken, options)
+        .json(
+          new ApiResponse(
+            200,
+            { user: loggedInUser, accessToken, refreshToken },
+            "User Logged In Successfully !!!.🥳"
+          )
+        );
+    }
   }
 });
 
