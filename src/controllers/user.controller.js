@@ -1,6 +1,6 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import { checkUserExists } from "../utils/Validations/dbUserCheck.js";
+import { checkUserExists } from "../utils/validations/dbUserCheck.js";
 import {
   userCreation,
   validateEmailFormat,

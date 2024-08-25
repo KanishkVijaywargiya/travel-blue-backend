@@ -3,7 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 
 const app = express();
-const corsOrigin = process.env.CORS_ORIGIN;
+const corsOrigin = process.env.CORS_ORIGIN || "http://localhost";
 const configLimit = process.env.Config_Limit;
 
 // CORS setup - passing the required URL only.
